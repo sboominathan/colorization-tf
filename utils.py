@@ -100,6 +100,7 @@ class NNEncode():
 
         P = pts_flt.shape[0]
 
+
         (dists,inds) = self.nbrs.kneighbors(pts_flt)
 
         wts = np.exp(-dists**2/(2*self.sigma**2))
@@ -131,7 +132,7 @@ def _nnencode(data_ab_ss):
   Returns:
     gt_ab_313 : [N, H, W, 313]
   '''
-  NN = 10.0
+  NN = 10
   sigma = 5.0
   enc_dir = './resources/'
 
@@ -160,6 +161,7 @@ class PriorFactor():
 
         # empirical prior probability
         self.prior_probs = np.load(priorFile)
+        self.prior_probs += 1E-8
 
         # define uniform probability
         self.uni_probs = np.zeros_like(self.prior_probs)
@@ -208,7 +210,7 @@ def _prior_boost(gt_ab_313):
   gamma = 0.5
   alpha = 1.0
 
-  pc = PriorFactor(alpha, gamma, priorFile=os.path.join(enc_dir, 'prior_probs.npy'))
+  pc = PriorFactor(alpha, gamma, priorFile=os.path.join(enc_dir, 'probs.npy'))
 
   gt_ab_313 = np.transpose(gt_ab_313, (0, 3, 1, 2))
   prior_boost = pc.forward(gt_ab_313, axis=1)
@@ -300,14 +302,20 @@ def get_data_l(image_path):
   Args:
     image_path  
   Returns:
-    data_l 
+    Just the L channel of the image at image_path
   """
+
+  # Read in image and convert to LAB format
   data = imread(image_path)
   data = data[None, :, :, :]
   img_lab = color.rgb2lab(data)
+
+  # Get L channel of this image and center
   img_l = img_lab[:, :, :, 0:1]
   data_l = img_l - 50
   data_l = data_l.astype(dtype=np.float32)
+
+  # Return full image and just L channel
   return data, data_l
 
 def process_config(conf_file):

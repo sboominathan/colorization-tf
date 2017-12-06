@@ -117,6 +117,7 @@ class DataSet(object):
       out = cv2.imread(item)
       if len(out.shape)==3 and out.shape[2]==3:
         self.image_queue.put(out)
+
   def image_customer(self):
     while True:
       images = []
@@ -125,7 +126,6 @@ class DataSet(object):
         image = self.image_process(image)
         images.append(image)
       images = np.asarray(images, dtype=np.uint8)
-
       self.batch_queue.put(preprocess(images))
 
   def batch(self):

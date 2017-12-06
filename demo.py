@@ -5,22 +5,26 @@ from skimage.io import imsave
 from skimage.transform import resize
 import cv2
 
-img = cv2.imread('gray.jpg')
-if len(img.shape) == 3:
-  img = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+def get_test_image(img_path):
+	img = cv2.imread(img_path)
+	img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+	img = img[None, :, :, None].astype(dtype=np.float32)
+	return img/255.0 * 100 - 50
 
-img = img[None, :, :, None]
-data_l = (img.astype(dtype=np.float32)) / 255.0 * 100 - 50
+def get_colorized_image():
+	img_path = "/home/ubuntu/imagenet/original/00000647.jpg"
+	test_image = get_test_image(img_path)
 
-#data_l = tf.placeholder(tf.float32, shape=(None, None, None, 1))
-autocolor = Net(train=False)
+	autocolor = Net(train=False)
+	lab_distribution = autocolor.inference(test_image)
 
-conv8_313 = autocolor.inference(data_l)
+	saver = tf.train.Saver()
+	with tf.Session() as sess:
+	  saver.restore(sess, 'models/model.ckpt-22000')
+	  lab_distribution = sess.run(lab_distribution)
 
-saver = tf.train.Saver()
-with tf.Session() as sess:
-  saver.restore(sess, 'models/model.ckpt')
-  conv8_313 = sess.run(conv8_313)
+	img_rgb = decode(test_image, lab_distribution, 2.63)
+	imsave('color.jpg', img_rgb)
 
-img_rgb = decode(data_l, conv8_313,2.63)
-imsave('color.jpg', img_rgb)
+if __name__ == "__main__":
+	get_colorized_image()
