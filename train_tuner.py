@@ -57,7 +57,7 @@ def main():
     #     imsave(img_path, pred)
 
 
-def get_data(dir):
+def get_data(x, y):
     input_paths = glob.glob(os.path.join(dir, '*.jpg'))
     target_paths = glob.glob(os.path.join(dir, '*.jpg'))
 
