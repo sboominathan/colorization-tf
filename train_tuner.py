@@ -1,46 +1,65 @@
 import os
 import glob
+import sys
 import numpy as np
 from skimage.io import imread, imsave
 from rgb_tuner import rgb_tuner
+from keras.callbacks import ModelCheckpoint
+import argparse
+
+
+parser = argparse.ArgumentParser(sys.argv[0])
+parser.add_argument('--train_x', type=str)
+parser.add_argument('--train_y', type=str)
+
+args = parser.parse_args()
 
 
 def main():
+    global args
     img_dim = [128, 128, 3]
     batch_size = 50
     n_epochs = 50
 
-    data_dir = 'data'
-    train_dir = os.path.join(data_dir, 'train')
-    val_dir = os.path.join(data_dir, 'val')
-    test_dir = os.path.join(data_dir, 'test')
+    # data_dir = 'data'
+    # train_dir = os.path.join(data_dir, 'train')
+    # val_dir = os.path.join(data_dir, 'val')
+    # test_dir = os.path.join(data_dir, 'test')
 
-    train_x, train_y = get_data(train_dir)
-    val = get_data(val_dir)
-    test = get_data(test_dir)
+    train_x, train_y = get_data(args.train_x, args.train_y)
+    # val = get_data(val_dir)
+    # test = get_data(test_dir)
 
     model = rgb_tuner(img_dim, batch_size)
     model.compile(loss='mean_squared_error', optimizer='adam')
-    model.fit(x=train_x, y=train_y, validation_data=val,
-              batch_size=batch_size, epochs=n_epochs)
+    # model.fit(x=train_x, y=train_y, validation_data=val,
+    #           batch_size=batch_size, epochs=n_epochs)
 
-    preds = model.predict(test[0], verbose=1)
+    model_save = 'rgb_tuner.best.hdf5'
+    checkpoint = ModelCheckpoint(model_save,
+                                 monitor='val_loss',
+                                 save_best_only=True)
 
-    pred_path = os.path.join(test_dir, 'pred')
-    if not os.path.exists(pred_path):
-        os.makedirs(pred_path)
+    model.fit(x=train_x, y=train_y, validation_split=0.1,
+              batch_size=batch_size, epochs=n_epochs, callbacks=[checkpoint])
 
-    assert preds[0].shape == tuple(img_dim)
+    # preds = model.predict(test[0], verbose=1)
 
-    for i, pred in preds:
-        img_path = os.path.join(pred_path,
-                                '{}_pred.jpg'.format(str(i + 1).zfill(8)))
-        imsave(img_path, pred)
+    # pred_path = os.path.join(test_dir, 'pred')
+    # if not os.path.exists(pred_path):
+    #     os.makedirs(pred_path)
+
+    # assert preds[0].shape == tuple(img_dim)
+
+    # for i, pred in preds:
+    #     img_path = os.path.join(pred_path,
+    #                             '{}_pred.jpg'.format(str(i + 1).zfill(8)))
+    #     imsave(img_path, pred)
 
 
 def get_data(dir):
-    input_paths = glob.glob(os.path.join(dir, 'input', '*.jpg'))
-    target_paths = glob.glob(os.path.join(dir, 'target', '*.jpg'))
+    input_paths = glob.glob(os.path.join(dir, '*.jpg'))
+    target_paths = glob.glob(os.path.join(dir, '*.jpg'))
 
     input_images = []
     for path in input_paths:
