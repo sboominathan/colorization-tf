@@ -1,10 +1,7 @@
-import keras.backend as K
 from keras.models import Model
 from keras.layers import Input
-from keras.layers.core import Lambda
 from keras.layers.normalization import BatchNormalization
 from keras.layers.convolutional import Conv2D, Conv2DTranspose
-import numpy as np
 
 
 def conv_downsample_block(x, block_id, filter, block, end_stride):
