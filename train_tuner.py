@@ -34,6 +34,7 @@ def main():
     model.compile(loss='mean_squared_error', optimizer='adam')
     # model.fit(x=train_x, y=train_y, validation_data=val,
     #           batch_size=batch_size, epochs=n_epochs)
+    print 'Model created and compiled.'
 
     model_save = 'rgb_tuner.best.hdf5'
     checkpoint = ModelCheckpoint(model_save,
@@ -58,16 +59,19 @@ def main():
 
 
 def get_data(x, y):
-    input_paths = glob.glob(os.path.join(dir, '*.jpg'))
-    target_paths = glob.glob(os.path.join(dir, '*.jpg'))
+    input_paths = glob.glob(os.path.join(x, '*.jpg'))
+    target_paths = glob.glob(os.path.join(y, '*.jpg'))
+    print 'Paths obtained.'
 
     input_images = []
     for path in input_paths:
         input_images.append(imread(path))
+    print 'Input images read.'
 
     target_images = []
     for path in target_paths:
         target_images.append(imread(path))
+    print 'Target images read.'
 
     input = np.stack(input_images, axis=0)
     target = np.stack(target_images, axis=0)
