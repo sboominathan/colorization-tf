@@ -40,6 +40,8 @@ def main():
                                  monitor='val_loss',
                                  save_best_only=True)
 
+    return
+
     model.fit(x=input, y=target, validation_split=0.1,
               batch_size=batch_size, epochs=n_epochs, callbacks=[checkpoint])
 
@@ -51,18 +53,22 @@ def rgb_loss(img_true, img_pred):
 
 
 def get_data(x, y):
-    input_paths = glob.glob(os.path.join(x, '*.jpg'))
-    target_paths = glob.glob(os.path.join(y, '*.jpg'))
+    input_paths = glob.glob(os.path.join(x, '*.jpg'))[:50000]
+    target_paths = glob.glob(os.path.join(y, '*.jpg'))[:50000]
     print 'Paths obtained.'
 
     input_images = []
-    for path in input_paths:
+    for i, path in enumerate(input_paths):
         input_images.append(imread(path) / 255.)
+        if i % 10000 == 0:
+            print '{} images processed.'.format(i)
     print 'Input images read.'
 
     target_images = []
-    for path in target_paths:
+    for i, path in enumerate(target_paths):
         target_images.append(imread(path) / 255.)
+        if i % 10000 == 0:
+            print '{} images processed.'.format(i)
     print 'Target images read.'
 
     input = np.stack(input_images, axis=0)

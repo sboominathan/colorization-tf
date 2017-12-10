@@ -99,3 +99,8 @@ def rgb_tuner_resnet(img_dim, model_name='tuner_resnet'):
                name='block_{}_final'.format(block_id))(x)
 
     return Model(inputs=[inputs], outputs=[x], name=model_name)
+
+if __name__ == '__main__':
+    img_dim = [128, 128, 3]
+    model = rgb_tuner(img_dim)
+    print model.summary()
