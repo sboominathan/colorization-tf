@@ -57,16 +57,16 @@ def get_data(x, y):
 
     input_images = []
     for path in input_paths:
-        input_images.append(imread(path))
+        input_images.append(imread(path) / 255.)
     print 'Input images read.'
 
     target_images = []
     for path in target_paths:
-        target_images.append(imread(path))
+        target_images.append(imread(path) / 255.)
     print 'Target images read.'
 
-    input = np.stack(input_images, axis=0) / 255.
-    target = np.stack(target_images, axis=0) / 255.
+    input = np.stack(input_images, axis=0)
+    target = np.stack(target_images, axis=0)
 
     return input, target
 
