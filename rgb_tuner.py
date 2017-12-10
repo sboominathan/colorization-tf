@@ -40,9 +40,9 @@ def rgb_tuner(img_dim, batch_size, model_name='colorize'):
     curr_h, curr_w = img_dim[:2]
     block_id = 1
 
-    filter_sizes = [64, 128, 256]
-    block_sizes = [2, 2, 2]
-    end_strides = [2, 2, 1]
+    filter_sizes = [64, 128]
+    block_sizes = [2, 2]
+    end_strides = [2, 1]
 
     inputs = Input(shape=(h, w, c), name="input")
     x = inputs

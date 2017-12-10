@@ -3,6 +3,7 @@ import glob
 import sys
 import numpy as np
 from skimage.io import imread, imsave
+import keras.backend as K
 from rgb_tuner import rgb_tuner
 from keras.callbacks import ModelCheckpoint
 import argparse
@@ -31,7 +32,8 @@ def main():
     # test = get_data(test_dir)
 
     model = rgb_tuner(img_dim, batch_size)
-    model.compile(loss='mean_squared_error', optimizer='adam')
+    print model.summary()
+    model.compile(loss=rgb_loss, optimizer='adam')
     # model.fit(x=train_x, y=train_y, validation_data=val,
     #           batch_size=batch_size, epochs=n_epochs)
     print 'Model created and compiled.'
@@ -58,6 +60,12 @@ def main():
     #     imsave(img_path, pred)
 
 
+def rgb_loss(img_true, img_pred):
+    total_loss = K.sum(K.square(img_true - img_pred))
+    mean_loss = total_loss / (128 * 128 * 3)
+    return mean_loss
+
+
 def get_data(x, y):
     input_paths = glob.glob(os.path.join(x, '*.jpg'))
     target_paths = glob.glob(os.path.join(y, '*.jpg'))
@@ -73,8 +81,8 @@ def get_data(x, y):
         target_images.append(imread(path))
     print 'Target images read.'
 
-    input = np.stack(input_images, axis=0)
-    target = np.stack(target_images, axis=0)
+    input = np.stack(input_images, axis=0) / 255.
+    target = np.stack(target_images, axis=0) / 255.
 
     return input, target
 
