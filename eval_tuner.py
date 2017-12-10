@@ -23,7 +23,7 @@ def main():
     model = load_model(args.model)
     print 'Model created.'
 
-    preds = model.predict(eval[0], verbose=1)
+    preds = model.predict(eval, verbose=1)
 
     pred_path = 'pred'
     if not os.path.exists(pred_path):
