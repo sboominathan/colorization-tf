@@ -18,7 +18,7 @@ def main():
     global args
     img_dim = [128, 128, 3]
 
-    eval = get_data(input)
+    eval = get_data(args.input)
 
     model = load_model(args.model)
     print 'Model created.'
