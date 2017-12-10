@@ -37,11 +37,11 @@ def main():
         imsave(img_path, pred)
 
 
-def get_data(path):
-    if path.endswith('.jpg'):
-        img_paths = [path]
+def get_data(data_path):
+    if data_path.endswith('.jpg'):
+        img_paths = [data_path]
     else:
-        img_paths = glob.glob(os.path.join(path, '*.jpg'))
+        img_paths = glob.glob(os.path.join(data_path, '*.jpg'))
     print 'Paths obtained.'
 
     images = []
