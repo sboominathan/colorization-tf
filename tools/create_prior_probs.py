@@ -13,7 +13,7 @@ points = np.load('resources/pts_in_hull.npy')
 filename_list = []
 
 for img_file in lists_f:
-  filename_lists.append(img_file.strip())
+  filename_list.append(img_file.strip())
 random.shuffle(filename_list)
 
 points = points.astype(np.float64)

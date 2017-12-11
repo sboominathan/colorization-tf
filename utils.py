@@ -210,7 +210,7 @@ def _prior_boost(gt_ab_313):
   gamma = 0.5
   alpha = 1.0
 
-  pc = PriorFactor(alpha, gamma, priorFile=os.path.join(enc_dir, 'probs.npy'))
+  pc = PriorFactor(alpha, gamma, priorFile=os.path.join(enc_dir, 'prior_probs.npy'))
 
   gt_ab_313 = np.transpose(gt_ab_313, (0, 3, 1, 2))
   prior_boost = pc.forward(gt_ab_313, axis=1)
@@ -272,30 +272,39 @@ def softmax(x):
     return e_x / np.expand_dims(e_x.sum(axis=-1), axis=-1) # only difference
 
 
-def decode(data_l, conv8_313, rebalance=1):
+def decode(data_l, conv8_313, temperature=1):
   """
+  Given L channel of a ground truth image and distrbution over AB bins
+  produced by CNN, gives a predicted RGB images
+
   Args:
     data_l   : [1, height, width, 1]
+    L channel of image to be decoded
+
     conv8_313: [1, height/4, width/4, 313]
+    Distribution over AB bins produced by the CNN
+
   Returns:
     img_rgb  : [height, width, 3]
   """
+
   data_l = data_l + 50
-  _, height, width, _ = data_l.shape
+  _, h, w, _ = data_l.shape
   data_l = data_l[0, :, :, :]
+
   conv8_313 = conv8_313[0, :, :, :]
-  enc_dir = './resources'
-  conv8_313_rh = conv8_313 * rebalance
+  conv8_313_rh = conv8_313 * temperature
   class8_313_rh = softmax(conv8_313_rh)
 
-  cc = np.load(os.path.join(enc_dir, 'pts_in_hull.npy'))
+  cc = np.load('resources/pts_in_hull.npy')
   
+  # Get expected value of all pixels in AB space and resize
   data_ab = np.dot(class8_313_rh, cc)
-  data_ab = resize(data_ab, (height, width))
-  img_lab = np.concatenate((data_l, data_ab), axis=-1)
-  img_rgb = color.lab2rgb(img_lab)
+  data_ab = resize(data_ab, (h, w))
 
-  return img_rgb
+  # Concatenate L and AB channels
+  img_lab = np.concatenate((data_l, data_ab), axis=-1)
+  return color.lab2rgb(img_lab)
 
 def get_data_l(image_path):
   """

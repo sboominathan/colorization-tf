@@ -97,7 +97,7 @@ class Solver(object):
         print('io: ' + str(t2 - t1) + '; compute: ' + str(t3 - t2))
         assert not np.isnan(loss_value), 'Model diverged with loss = NaN'
 
-        if step % 25 == 0:
+        if step % 1 == 0:
           num_examples_per_step = self.batch_size * self.num_gpus
           examples_per_sec = num_examples_per_step / duration
           sec_per_batch = duration / self.num_gpus
