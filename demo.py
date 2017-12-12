@@ -54,19 +54,19 @@ def get_batch_colorized_image(batch_list):
 def get_all_colorized_images():
 	img_list = []
 	batch_size = 100
-	# img_list = sorted(glob.glob("/home/ubuntu/vol/imagenet/train/*.jpg"))[:200]
-	img_list = sorted(glob.glob("/home/ubuntu/vol/colorization/data/test/*.jpg"))[:100]
+	img_list = sorted(glob.glob("/home/ubuntu/vol/imagenet/train/*.jpg"))
+	# img_list = sorted(glob.glob("/home/ubuntu/vol/colorization/data/test/*.jpg"))
 
 	all_images = []
 	num_batches = int(len(img_list)/batch_size)
 
-	autocolor = Net(train=False)
+	autocolor = ResNet(train=False)
 	batch_list = tf.placeholder(tf.float32, (batch_size, 128, 128, 1))
 	lab_distribution = autocolor.inference(batch_list)
 	saver = tf.train.Saver()
 
 	with tf.Session() as sess:
-		saver.restore(sess, 'models/model.ckpt-30000')
+		saver.restore(sess, 'models/model_resnet.ckpt-20000')
 		for i in tqdm(range(num_batches)):
 			image_paths = img_list[i*batch_size:(i+1)*batch_size]
 			images = [get_test_image(img_path) for img_path in image_paths]
@@ -83,7 +83,7 @@ def get_all_colorized_images():
 
 	for i in range(len(all_images)):
 		image_name = str(i+1).zfill(8) + '_colorized.jpg'
-		imsave(os.path.join('colorized_images/test', image_name), all_images[i])
+		imsave(os.path.join('colorized_images/resnet_train', image_name), all_images[i])
 
 if __name__ == "__main__":
 	get_all_colorized_images()
