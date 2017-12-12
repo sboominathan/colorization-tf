@@ -8,6 +8,7 @@ import re
 
 from ops import *
 from net import Net
+from resnet import ResNet
 from data import DataSet
 import time
 from datetime import datetime
@@ -32,7 +33,8 @@ class Solver(object):
       self.lr_decay = float(solver_params['lr_decay'])
       self.decay_steps = int(solver_params['decay_steps'])
     self.train = train
-    self.net = Net(train=train, common_params=common_params, net_params=net_params)
+    # self.net = Net(train=train, common_params=common_params, net_params=net_params)
+    self.net = ResNet(train=train, common_params=common_params, net_params=net_params)
     self.dataset = DataSet(common_params=common_params, dataset_params=dataset_params)
 
   def construct_graph(self, scope):
@@ -113,5 +115,5 @@ class Solver(object):
 
         # Save the model checkpoint periodically.
         if step % 1000 == 0:
-          checkpoint_path = os.path.join(self.train_dir, 'model.ckpt')
+          checkpoint_path = os.path.join(self.train_dir, 'model_resnet.ckpt')
           saver.save(sess, checkpoint_path, global_step=step)

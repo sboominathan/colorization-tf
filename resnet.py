@@ -14,7 +14,7 @@ import os
 import sys
 
 
-class Net(object):
+class ResNet(object):
 
     def __init__(self, train=True, common_params=None, net_params=None):
         self.train = train
@@ -30,14 +30,14 @@ class Net(object):
 
         # conv1
         temp_shortcut = conv2d('conv_shortcut1', data_l,
-                               [1, 1, 1, 64], stride=1)
+                               [1, 1, 1, 64], stride=2)
 
         temp_conv = conv2d('conv{}'.format(conv_num), data_l,
                            [3, 3, 1, 64], stride=1, wd=self.weight_decay)
         conv_num += 1
 
         temp_conv = conv2d('conv{}'.format(conv_num), temp_conv,
-                           [3, 3, 64, 64], stride=1, wd=self.weight_decay)
+                           [3, 3, 64, 64], stride=2, wd=self.weight_decay)
         conv_num += 1
 
         temp_conv = batch_norm('bn_1', temp_conv, train=self.train)
@@ -46,14 +46,14 @@ class Net(object):
 
         # conv2
         temp_shortcut = conv2d('conv_shortcut2', temp_conv,
-                               [1, 1, 64, 128], stride=1)
+                               [1, 1, 64, 128], stride=2)
 
         temp_conv = conv2d('conv{}'.format(conv_num), temp_conv,
                            [3, 3, 64, 128], stride=1, wd=self.weight_decay)
         conv_num += 1
 
         temp_conv = conv2d('conv{}'.format(conv_num), temp_conv,
-                           [3, 3, 128, 128], stride=1, wd=self.weight_decay)
+                           [3, 3, 128, 128], stride=2, wd=self.weight_decay)
         conv_num += 1
 
         temp_conv = batch_norm('bn_2', temp_conv, train=self.train)
@@ -62,7 +62,7 @@ class Net(object):
 
         # conv3
         temp_shortcut = conv2d('conv_shortcut3', temp_conv,
-                               [1, 1, 128, 256], stride=1)
+                               [1, 1, 128, 256], stride=2)
 
         temp_conv = conv2d('conv{}'.format(conv_num), temp_conv,
                            [3, 3, 128, 256], stride=1, wd=self.weight_decay)
@@ -73,7 +73,7 @@ class Net(object):
         conv_num += 1
 
         temp_conv = conv2d('conv{}'.format(conv_num), temp_conv,
-                           [3, 3, 256, 256], stride=1, wd=self.weight_decay)
+                           [3, 3, 256, 256], stride=2, wd=self.weight_decay)
         conv_num += 1
 
         temp_conv = batch_norm('bn_3', temp_conv, train=self.train)
@@ -83,6 +83,7 @@ class Net(object):
         # conv4
         temp_shortcut = conv2d('conv_shortcut4', temp_conv,
                                [1, 1, 256, 512], stride=1)
+        # temp_shortcut = temp_conv
 
         temp_conv = conv2d('conv{}'.format(conv_num), temp_conv,
                            [3, 3, 256, 512], stride=1, wd=self.weight_decay)
@@ -101,9 +102,10 @@ class Net(object):
         temp_conv = temp_shortcut + temp_conv
 
         # conv5
-        temp_shortcut = conv2d('conv_shortcut5', temp_conv,
-                               [1, 1, 512, 512], stride=1)
+        # temp_shortcut = conv2d('conv_shortcut5', temp_conv,
+        #                        [1, 1, 512, 512], stride=1)
 
+        temp_shortcut = temp_conv
         temp_conv = conv2d('conv{}'.format(conv_num), temp_conv,
                            [3, 3, 512, 512], stride=1, dilation=2,
                            wd=self.weight_decay)
@@ -124,8 +126,9 @@ class Net(object):
         temp_conv = temp_shortcut + temp_conv
 
         # conv6
-        temp_shortcut = conv2d('conv_shortcut5', temp_conv,
-                               [1, 1, 512, 512], stride=1)
+        # temp_shortcut = conv2d('conv_shortcut6', temp_conv,
+        #                        [1, 1, 512, 512], stride=1)
+        temp_shortcut = temp_conv
 
         temp_conv = conv2d('conv{}'.format(conv_num), temp_conv,
                            [3, 3, 512, 512], stride=1, dilation=2,
@@ -147,8 +150,9 @@ class Net(object):
         temp_conv = temp_shortcut + temp_conv
 
         # conv7
-        temp_shortcut = conv2d('conv_shortcut5', temp_conv,
-                               [1, 1, 512, 512], stride=1)
+        # temp_shortcut = conv2d('conv_shortcut7', temp_conv,
+        #                        [1, 1, 512, 512], stride=1)
+        temp_shortcut = temp_conv
 
         temp_conv = conv2d('conv{}'.format(conv_num), temp_conv,
                            [3, 3, 512, 512], stride=1, wd=self.weight_decay)
@@ -166,9 +170,12 @@ class Net(object):
 
         temp_conv = temp_shortcut + temp_conv
 
-        conv8
+        # conv8
+        temp_shortcut = deconv2d('conv_shortcut8', temp_conv,
+                               [1, 1, 512, 256], stride=2)
+
         temp_conv = deconv2d('conv{}'.format(conv_num), temp_conv,
-                             [4, 4, 512, 256], stride=1, wd=self.weight_decay)
+                             [4, 4, 512, 256], stride=2, wd=self.weight_decay)
         conv_num += 1
 
         temp_conv = conv2d('conv{}'.format(conv_num), temp_conv,
@@ -177,6 +184,8 @@ class Net(object):
 
         temp_conv = conv2d('conv{}'.format(conv_num), temp_conv,
                            [3, 3, 256, 256], stride=1, wd=self.weight_decay)
+
+        temp_conv = temp_shortcut + temp_conv
         conv_num += 1
 
         # Unary prediction

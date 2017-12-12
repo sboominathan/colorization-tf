@@ -1,6 +1,7 @@
 import tensorflow as tf
 from utils import *
 from net import Net
+from resnet import ResNet
 from skimage.io import imsave
 from skimage.transform import resize
 from tqdm import tqdm
@@ -14,16 +15,21 @@ def get_test_image(img_path):
 	return img/255.0 * 100 - 50
 
 def get_colorized_image():
-	img_path = "/home/ubuntu/vol/imagenet/train/00000900.jpg"
+	img_path = "/home/ubuntu/vol/imagenet/train/00000075.jpg"
+	# img_path = "/home/ubuntu/vol/colorization/data/test/00000163.jpg"
 	# img_path = "gray.jpg"
 	test_image = get_test_image(img_path)
 
-	autocolor = Net(train=False)
+	autocolor = ResNet(train=False)
+	# autocolor = Net(train=False)
 	lab_distribution = autocolor.inference(test_image)
+
+	model_resnet = 'models/model_resnet.ckpt-21000'
+	model_old = 'models/model.ckpt-30000'
 
 	saver = tf.train.Saver()
 	with tf.Session() as sess:
-	  saver.restore(sess, 'models/model.ckpt-10000')
+	  saver.restore(sess, model_resnet)
 	  lab_distribution = sess.run(lab_distribution)
 
 	img_rgb = decode(test_image, lab_distribution, 2.83)
@@ -48,7 +54,8 @@ def get_batch_colorized_image(batch_list):
 def get_all_colorized_images():
 	img_list = []
 	batch_size = 100
-	img_list = sorted(glob.glob("/home/ubuntu/vol/imagenet/train/*.jpg"))
+	# img_list = sorted(glob.glob("/home/ubuntu/vol/imagenet/train/*.jpg"))[:200]
+	img_list = sorted(glob.glob("/home/ubuntu/vol/colorization/data/test/*.jpg"))[:100]
 
 	all_images = []
 	num_batches = int(len(img_list)/batch_size)
@@ -59,7 +66,7 @@ def get_all_colorized_images():
 	saver = tf.train.Saver()
 
 	with tf.Session() as sess:
-		saver.restore(sess, 'models/model.ckpt-34000')
+		saver.restore(sess, 'models/model.ckpt-30000')
 		for i in tqdm(range(num_batches)):
 			image_paths = img_list[i*batch_size:(i+1)*batch_size]
 			images = [get_test_image(img_path) for img_path in image_paths]
@@ -76,7 +83,7 @@ def get_all_colorized_images():
 
 	for i in range(len(all_images)):
 		image_name = str(i+1).zfill(8) + '_colorized.jpg'
-		imsave(os.path.join('colorized_images/train', image_name), all_images[i])
+		imsave(os.path.join('colorized_images/test', image_name), all_images[i])
 
 if __name__ == "__main__":
 	get_all_colorized_images()
